@@ -1,15 +1,10 @@
 public class ImageDesigner : IDisposable, IImageDesigner
     {
         private Stream data { get; set; }
-
-        private Size oryginalSize;
-
+        private Size originalSize;
         public Size Size { get; set; }
-
         public string FileName { get; set; }
-
         private ImageFactory convertingFactory;
-
 
         public ImageDesigner(Stream data, string fileName)
         {
@@ -17,8 +12,8 @@ public class ImageDesigner : IDisposable, IImageDesigner
             this.FileName = fileName;
             this.convertingFactory = new ImageFactory(preserveExifData: true);
             this.convertingFactory.Load(data);
-            this.oryginalSize = this.GetSizeFromStream();
-            this.Size = oryginalSize;   //Get initation size from stream data,
+            this.originalSize = this.GetSizeFromStream();
+            this.Size = originalSize;   //Get initation size from stream data,
         }
 
         public void ChangeFormat(MimeType type)
@@ -54,7 +49,6 @@ public class ImageDesigner : IDisposable, IImageDesigner
         public void SetSize(Size size)
         {
             this.Size = size;
-
             var config = new ResizeLayer(size, ResizeMode.Stretch);
             this.convertingFactory.Resize(config);
         }
@@ -84,9 +78,7 @@ public class ImageDesigner : IDisposable, IImageDesigner
 
         public void SetWatermark(Stream watermark, Point position, Size size)
         {
-            //if(Image.FromStream(watermark).Size != size)
             var resizedWatermark = new MemoryStream();
-
             var resizeLayer = new ResizeLayer(size, ResizeMode.Stretch);
 
             using (var watermarkFactory = new ImageFactory(preserveExifData: true))
@@ -96,7 +88,6 @@ public class ImageDesigner : IDisposable, IImageDesigner
                     .Save(resizedWatermark);
             }
             
-
             var watermarkConfig = new ImageLayer
             {
                 Image = Image.FromStream(resizedWatermark),
@@ -110,8 +101,7 @@ public class ImageDesigner : IDisposable, IImageDesigner
 
         public Stream ExecuteConversion()
         {
-            //Save to new stream
-            Stream result = new MemoryStream();
+            Stream result = new MemoryStream(); //Save to new stream
             this.convertingFactory.Save(result);
 
             return result;
